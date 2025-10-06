@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>My Message</title>
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#6B5B95;}
+body{margin:0;padding:2rem;font-family:'Patrick Hand',cursive;background:linear-gradient(180deg,#fffaf6,#fdf6f0);background-image:radial-gradient(circle at 10% 10%, rgba(255,255,255,0.6), transparent 10%);}
+.back{position:fixed;top:1rem;left:1rem;font-size:1.2rem;color:var(--accent);text-decoration:none;}
+h1{text-align:center;color:var(--accent);font-size:2.2rem;margin-bottom:1rem;}
+.note{background:#fff8a6;padding:1.2rem;margin:0.8rem auto;max-width:640px;border-radius:10px;box-shadow:0 8px 18px rgba(0,0,0,0.06);transform:rotate(-1deg);}
+.controls{display:flex;justify-content:center;gap:1rem;margin-top:1rem;}
+.play-btn{font-size:1.8rem;cursor:pointer;border-radius:10px;padding:0.4rem 0.8rem;border:1px solid #e6d7e6;background:#fff;}
+</style></head><body>
+<a class="back" href="index.html">⬅ Back</a>
+<h1>💌 My Birthday Message for You</h1>
+<div class="note">Happy Birthday Atishay 🎉💖! I don’t know how to write a long, sugar-coated paragraph 😅, but I do want to say this…</div>
+<div class="note">Whether our bond is a mistake or a coincidence, whatever it is — it’s truly beautiful ✨.<br>The coincidences and <b>KALESH</b> 😂 between us make this relationship even more special.</div>
+<div class="note">This attachment we share is unique 💕.<br>I don’t know if we’ll ever meet in real life, but right now, in the present… I just want to enjoy every moment with you 🌸.</div>
+<div style="text-align:center;margin-top:1.2rem;">
+  <p>🎶 Voice note:</p>
+  <div class="controls">
+    <button id="play" class="play-btn">▶ Play</button>
+    <button id="pause" class="play-btn">⏸ Pause</button>
+  </div>
+  <audio id="voice" src="assets/voice-note.mp3"></audio>
+</div>
+<script>
+  const v=document.getElementById('voice');
+  document.getElementById('play').onclick=()=>v.play();
+  document.getElementById('pause').onclick=()=>v.pause();
+</script>
+</body></html>

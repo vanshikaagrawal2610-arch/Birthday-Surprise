@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Memory Flip — Wild Card</title>
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; padding:2rem; font-family:'Patrick Hand', cursive; background: url('assets/doodle-bg.png') center/cover; text-align:center; }
+  h1{color:#6B5B95; margin:6px 0}
+  .topbar{display:flex; gap:10px; align-items:center; justify-content:center; margin-bottom:6px}
+  .music-btn{position:fixed; top:12px; right:12px; background:#fff; border:2px solid #6B5B95; color:#6B5B95; border-radius:50%; width:44px; height:44px; font-size:18px; cursor:pointer}
+  .board{display:grid; grid-template-columns: repeat(5, 92px); gap:10px; justify-content:center; margin:14px auto; width: max-content;}
+  .card{width:92px; height:92px; perspective:600px; cursor:pointer; }
+  .inner{position:relative; width:100%; height:100%; transform-style:preserve-3d; transition: transform .45s;}
+  .card.flipped .inner{ transform: rotateY(180deg); }
+  .front, .back{position:absolute; inset:0; border-radius:10px; backface-visibility:hidden; display:flex; align-items:center; justify-content:center; font-size:34px; }
+  .front{ background:#fff; border:2px solid #6B5B95; color:#6B5B95; }
+  .back{ transform: rotateY(180deg); background-size:cover; background-position:center; border:2px solid #eae0f5; }
+  .info{margin-top:8px}
+  .subtitle{font-size:1rem; color:#555; margin-top:6px}
+  .message{font-size:1.2rem; color:#ff4081; margin-top:10px; display:none}
+  .play{margin-top:10px; background:#6B5B95; color:#fff; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; display:none}
+</style>
+</head>
+<body>
+  <div class="topbar"><button onclick="location.href='../index.html'">🏠 Back</button><h1>🃏 Memory Flip</h1></div>
+  <div class="subtitle">Here's someone's wild card entry 💫</div>
+  <button class="music-btn" id="mute">🔊</button>
+  <p>5×5 grid — match pairs (12 pairs) within <strong>20 moves</strong>. Mystery wild card is hidden.</p>
+  <div class="info">Moves used: <span id="moves">0</span> / 20 &nbsp; • &nbsp; Matched pairs: <span id="matched">0</span> / 12</div>
+  <div class="board" id="board"></div>
+  <div class="message" id="msg"></div>
+  <button class="play" id="play">Play Again 🔁</button>
+
+  <audio id="bg" loop><source src="assets/game-music.mp3" type="audio/mpeg"></audio>
+
+  <script>
+    const icons = [
+      'assets/flip1.png',
+      'assets/flip2.png',
+      'assets/flip3.png',
+      'assets/flip4.png',
+      'assets/flip5.png',
+      'assets/flip6.png',
+      'assets/flip7.png',
+      'assets/flip8.png',
+      'assets/flip9.png',
+      'assets/flip10.png',
+      'assets/flip11.png',
+      'assets/flip12.png'
+    ];
+    const joker = 'assets/flip-joker.png';
+    const boardEl = document.getElementById('board');
+    const movesEl = document.getElementById('moves');
+    const matchedEl = document.getElementById('matched');
+    const msg = document.getElementById('msg');
+    const playBtn = document.getElementById('play');
+    const bg = document.getElementById('bg');
+    const mute = document.getElementById('mute');
+    let started=false;
+
+    function makeDeck(){
+      let deck = [];
+      icons.forEach(i=>{ deck.push({img:i, id:i}); deck.push({img:i, id:i}); });
+      deck.push({img:joker, id:'joker'});
+      deck.sort(()=>Math.random()-0.5);
+      return deck;
+    }
+
+    let deck = [];
+    let flipped = [];
+    let matchedPairs = 0;
+    let moves = 0;
+    const maxMoves = 20;
+
+    function render(){
+      boardEl.innerHTML='';
+      deck.forEach((c, idx)=>{
+        const card = document.createElement('div');
+        card.className='card';
+        card.dataset.idx=idx;
+        card.innerHTML = `<div class="inner"><div class="front">?</div><div class="back" style="background-image:url('${c.img}')"></div></div>`;
+        card.addEventListener('click', ()=> onFlip(card, c));
+        boardEl.appendChild(card);
+      });
+      movesEl.textContent = moves;
+      matchedEl.textContent = matchedPairs;
+    }
+
+    function onFlip(cardEl, cardData){
+      if (!started){ bg.play(); started=true; }
+      if (cardEl.classList.contains('flipped') || flipped.length===2 || moves>=maxMoves) return;
+      cardEl.classList.add('flipped');
+      flipped.push({el:cardEl, data:cardData});
+      if (flipped.length===2){
+        moves++;
+        movesEl.textContent = moves;
+        checkPair();
+      }
+    }
+
+    function checkPair(){
+      const [a,b] = flipped;
+      if (!a || !b) return;
+      if (a.data.id==='joker' || b.data.id==='joker'){
+        // joker is mystery: show a brief sparkle then unflip
+        setTimeout(()=>{
+          a.el.classList.remove('flipped');
+          b.el.classList.remove('flipped');
+          // tiny surprise animation on body
+          document.body.animate([{transform:'scale(1)'},{transform:'scale(1.01)'},{transform:'scale(1)'}], {duration:500});
+          flipped=[];
+          if (moves>=maxMoves) finish(false);
+        },800);
+        return;
+      }
+      if (a.data.id===b.data.id){
+        matchedPairs++;
+        flipped=[];
+        matchedEl.textContent = matchedPairs;
+        if (matchedPairs===icons.length) finish(true);
+      } else {
+        setTimeout(()=>{ a.el.classList.remove('flipped'); b.el.classList.remove('flipped'); flipped=[]; if (moves>=maxMoves) finish(false); },800);
+      }
+    }
+
+    function finish(win){
+      msg.style.display='block';
+      playBtn.style.display='inline-block';
+      if (win){ msg.textContent='💖 Dil sync ho gaya 💕🧩'; } else { msg.textContent='💥 Bas karo… KALESH incoming 😅⚡'; }
+      document.querySelectorAll('.card').forEach(c=> c.style.pointerEvents='none');
+    }
+
+    function resetGame(){
+      deck = makeDeck();
+      flipped = [];
+      matchedPairs = 0;
+      moves = 0;
+      started=false;
+      msg.style.display='none'; playBtn.style.display='none';
+      document.querySelectorAll('.card').forEach(c=>c.style.pointerEvents='auto');
+      render();
+    }
+
+    playBtn.addEventListener('click', resetGame);
+    mute.addEventListener('click',(e)=>{ e.stopPropagation(); if (bg.paused){ bg.play(); mute.textContent='🔊'; } else { bg.pause(); mute.textContent='🔇'; } });
+    document.body.addEventListener('click', ()=>{ if(!started){ bg.play(); started=true; } });
+
+    // init
+    deck = makeDeck();
+    render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🎈 Balloon Popper</title>
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Patrick Hand', cursive;
+      background: linear-gradient(135deg, #ffe6ee, #fff3f8);
+      overflow: hidden;
+      color: #5a3e3e;
+      text-align: center;
+      height: 100vh;
+      margin: 0;
+    }
+    h1 {
+      font-size: 2.3rem;
+      margin: 1rem 0 0.2rem;
+    }
+    p {
+      font-size: 1.2rem;
+      margin: 0.5rem;
+      color: #555;
+    }
+    button {
+      font-family: 'Patrick Hand', cursive;
+      background: #ff8fa3;
+      border: none;
+      border-radius: 10px;
+      padding: 0.4rem 1.2rem;
+      margin: 0.5rem;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: white;
+      transition: background 0.3s ease;
+      z-index: 10;
+      position: relative;
+    }
+    button:hover { background: #ff6480; }
+    .music-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+    }
+
+    /* 🎈 Balloons */
+    .balloon {
+      position: absolute;
+      bottom: -120px;
+      width: 80px;
+      height: 100px;
+      border-radius: 50% 50% 45% 45%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1rem;
+      animation: float 3.5s linear forwards;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    /* 🎨 Darker, visible pastel colors */
+    .color1 { background: radial-gradient(circle at 30% 30%, #ff4d6d, #d42b4a); }
+    .color2 { background: radial-gradient(circle at 30% 30%, #ffb347, #e68a00); }
+    .color3 { background: radial-gradient(circle at 30% 30%, #4ecdc4, #2b9c93); }
+    .color4 { background: radial-gradient(circle at 30% 30%, #6a7efc, #3c4ed8); }
+    .color5 { background: radial-gradient(circle at 30% 30%, #b76efc, #8439d8); }
+
+    @keyframes float {
+      from { transform: translateY(0); opacity: 1; }
+      to { transform: translateY(-110vh); opacity: 0; }
+    }
+
+    /* 💥 Pop animation */
+    .blast { animation: pop 0.3s ease-out forwards; }
+    @keyframes pop {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: 0.8; filter: brightness(1.4); }
+      100% { transform: scale(0); opacity: 0; }
+    }
+
+    .particle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: white;
+      opacity: 0.8;
+      pointer-events: none;
+      animation: explode 0.5s ease-out forwards;
+    }
+    @keyframes explode {
+      to {
+        transform: translate(var(--x), var(--y)) scale(0);
+        opacity: 0;
+      }
+    }
+
+    /* ⚡ Kalesh */
+    .kalesh {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2rem;
+      color: #ff0033;
+      background: white;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+      animation: fadeOut 0.8s ease forwards;
+      z-index: 20;
+    }
+    @keyframes fadeOut {
+      0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
+    }
+
+    /* 💕 Popup */
+    .popup {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff0f5;
+      border-radius: 12px;
+      padding: 2rem;
+      font-size: 1.4rem;
+      color: #ff4081;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      display: none;
+      z-index: 30;
+    }
+
+    /* 💖 Hearts */
+    .heart {
+      position: fixed;
+      top: -10px;
+      color: #ff7fa8;
+      font-size: 20px;
+      animation: fall 3s linear forwards;
+      z-index: 100;
+      opacity: 0.9;
+    }
+    @keyframes fall {
+      from { transform: translateY(0) rotate(0deg); }
+      to { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <button onclick="location.href='../index.html'">🏠 Back</button>
+  <button class="music-btn" id="musicToggle">🔊</button>
+  <h1>🎈 Balloon Popper</h1>
+  <p>Pop only <b>Atishay</b> & <b>Vanshika</b> before time runs out 💕</p>
+  <p>⏱ Time left: <span id="time">15</span>s | 🎯 Score: <span id="score">0</span>/20</p>
+
+  <div id="popup" class="popup"></div>
+
+  <audio id="bgMusic" loop>
+    <source src="../assets/game-music.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="popSound">
+    <source src="../assets/pop.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const names = ["Atishay","Vanshika","Anshika","Bansal","Vansh","Aastha","Pratyush","Zaid","Megha","Piyush","Syeda","Roomie"];
+    const correctNames = ["Atishay","Vanshika"];
+    const colors = ["color1","color2","color3","color4","color5"];
+    let score = 0, timeLeft = 15, gameOver = false;
+    const scoreDisplay = document.getElementById('score');
+    const timeDisplay = document.getElementById('time');
+    const popup = document.getElementById('popup');
+    const music = document.getElementById('bgMusic');
+    const popSound = document.getElementById('popSound');
+    const toggle = document.getElementById('musicToggle');
+    let started = false;
+
+    document.body.addEventListener('click', () => {
+      if (!started) { music.play(); started = true; }
+    });
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (music.paused) { music.play(); toggle.textContent = '🔊'; }
+      else { music.pause(); toggle.textContent = '🔇'; }
+    });
+
+    function spawnBalloon() {
+      if (gameOver) return;
+      const balloon = document.createElement('div');
+      balloon.className = 'balloon ' + colors[Math.floor(Math.random() * colors.length)];
+      const name = names[Math.floor(Math.random() * names.length)];
+      balloon.textContent = name;
+      balloon.style.left = Math.random() * 90 + '%';
+      document.body.appendChild(balloon);
+
+      balloon.addEventListener('click', () => {
+        if (gameOver) return;
+        popSound.currentTime = 0;
+        popSound.play();
+        popBalloon(balloon);
+        if (correctNames.includes(name)) {
+          score++;
+          scoreDisplay.textContent = score;
+          if (score >= 20) endGame(true);
+        } else {
+          showKalesh();
+        }
+      });
+      setTimeout(() => balloon.remove(), 4000);
+    }
+
+    function popBalloon(balloon) {
+      const rect = balloon.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      balloon.classList.add('blast');
+      for (let i = 0; i < 10; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = centerX + 'px';
+        particle.style.top = centerY + 'px';
+        particle.style.setProperty('--x', `${(Math.random() - 0.5) * 150}px`);
+        particle.style.setProperty('--y', `${(Math.random() - 0.5) * 150}px`);
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 500);
+      }
+      setTimeout(() => balloon.remove(), 300);
+    }
+
+    function showKalesh() {
+      const msg = document.createElement('div');
+      msg.className = 'kalesh';
+      msg.textContent = '⚡ KALESH ⚡';
+      document.body.appendChild(msg);
+      setTimeout(() => msg.remove(), 800);
+    }
+
+    const timer = setInterval(() => {
+      if (timeLeft <= 0) { endGame(false); return; }
+      timeLeft--;
+      timeDisplay.textContent = timeLeft;
+    }, 1000);
+
+    function heartRain() {
+      for (let i = 0; i < 25; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'heart';
+        heart.textContent = '💖';
+        heart.style.left = Math.random() * 100 + '%';
+        heart.style.fontSize = 15 + Math.random() * 20 + 'px';
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 3000);
+      }
+    }
+
+    function endGame(win) {
+      gameOver = true;
+      clearInterval(timer);
+      popup.style.display = 'block';
+      popup.innerHTML = win
+        ? "💖 Bas ab udake le jaunga 💘🎈<br><button onclick='location.reload()'>Play Again 🔁</button>"
+        : "⏰ Time’s up! Bas karo... KALESH incoming 😅⚡<br><button onclick='location.reload()'>Try Again 🔁</button>";
+      if (win) heartRain();
+    }
+
+    setInterval(() => {
+      if (!gameOver) spawnBalloon();
+    }, 500);
+  </script>
+</body>
+</html>

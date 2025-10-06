@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Guess the Word</title>
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .word {
+      font-size: 2rem;
+      letter-spacing: 0.5rem;
+      margin: 1.5rem 0;
+      color: #444;
+    }
+    .input { margin-top: 1rem; font-size: 1.5rem; }
+    .message {
+      margin-top: 1.5rem;
+      font-size: 1.5rem;
+      color: #ff4081;
+      display: none;
+    }
+    .play-again {
+      margin-top: 2rem;
+      background: #6B5B95;
+      color: white;
+      padding: 0.5rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>✍️ Guess the Word</h1>
+  <div class="word" id="wordDisplay"></div>
+  <div class="input">
+    <p>Type a letter:</p>
+    <input type="text" id="letterInput" maxlength="1" autofocus>
+  </div>
+  <p>❌ Wrong guesses: <span id="wrongCount">0</span> / 5</p>
+  <div class="message" id="message"></div>
+  <button class="play-again" id="playAgain">Play Again 🔁</button>
+  <button onclick="location.href='../index.html'">⬅️ Back</button>
+  <button class="music-btn" id="muteBtn">🔊</button>
+  <audio id="bgMusic" loop>
+    <source src="../assets/game-music.mp3" type="audio/mpeg">
+  </audio>
+  <script>
+    const words = ["komolika","detective conan","nandan bus","kancha cheena","coffee concept","sunscreen"];
+    let currentWord = ""; let guessedLetters = []; let wrongGuesses = 0;
+    const maxWrong = 5; const wordDisplay = document.getElementById('wordDisplay');
+    const input = document.getElementById('letterInput'); const wrongCount = document.getElementById('wrongCount');
+    const message = document.getElementById('message'); const playAgain = document.getElementById('playAgain');
+    const bgMusic = document.getElementById('bgMusic'); const muteBtn = document.getElementById('muteBtn');
+    let musicStarted = false;
+    function newGame() {
+      currentWord = words[Math.floor(Math.random() * words.length)];
+      guessedLetters = []; wrongGuesses = 0; wrongCount.textContent = wrongGuesses;
+      message.style.display = 'none'; playAgain.style.display = 'none'; input.disabled = false; displayWord();
+    }
+    function displayWord() {
+      const display = currentWord.split('').map(letter => (letter === ' ' ? ' ' : guessedLetters.includes(letter.toLowerCase()) ? letter : '_')).join(' ');
+      wordDisplay.textContent = display;
+    }
+    input.addEventListener('input', () => {
+      const letter = input.value.toLowerCase(); input.value = '';
+      if (!musicStarted) { bgMusic.play(); musicStarted = true; }
+      if (!letter.match(/[a-z]/i)) return; if (guessedLetters.includes(letter)) return;
+      guessedLetters.push(letter);
+      if (!currentWord.toLowerCase().includes(letter)) { wrongGuesses++; wrongCount.textContent = wrongGuesses; }
+      displayWord(); checkGameStatus();
+    });
+    function checkGameStatus() {
+      if (wrongGuesses >= maxWrong) { message.textContent = "💥 Kalesh alert 🚨"; endGame(); }
+      else if (!wordDisplay.textContent.includes('_')) { message.textContent = "💖 Dil jeet liya 😏"; endGame(); }
+    }
+    function endGame() { message.style.display = 'block'; playAgain.style.display = 'inline-block'; input.disabled = true; }
+    playAgain.addEventListener('click', newGame);
+    muteBtn.addEventListener('click', () => {
+      if (bgMusic.paused) { bgMusic.play(); muteBtn.textContent = '🔊'; } else { bgMusic.pause(); muteBtn.textContent = '🔇'; }
+    });
+    newGame();
+  </script>
+</body>
+</html>

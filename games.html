@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game Zone</title>
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>🎮 Game Zone</h1>
+  <button onclick="location.href='games/photo-puzzle.html'">🧩 Photo Puzzle</button>
+  <button onclick="location.href='games/guess-the-word.html'">✍️ Guess The Word</button>
+  <button onclick="location.href='games/memory-flip.html'">🧠 Memory Flip</button>
+  <button onclick="location.href='games/balloon-popper.html'">🎈 Balloon Popper</button>
+  <br><br>
+  <!-- ✅ Back navigation fixed -->
+  <button onclick="window.history.back()">⬅️ Back to Menu</button>
+
+  <button class="music-btn" id="musicToggle">🔊</button>
+  <audio id="bgMusic" loop>
+    <source src="assets/game-music.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const music = document.getElementById('bgMusic');
+    const toggle = document.getElementById('musicToggle');
+    let started = false;
+
+    document.body.addEventListener('click', () => {
+      if (!started) {
+        music.play();
+        started = true;
+      }
+    });
+
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (music.paused) {
+        music.play();
+        toggle.textContent = '🔊';
+      } else {
+        music.pause();
+        toggle.textContent = '🔇';
+      }
+    });
+  </script>
+</body>
+</html>

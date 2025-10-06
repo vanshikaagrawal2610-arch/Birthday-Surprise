@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Happy Birthday Atishay</title>
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{--accent:#6B5B95;}
+  body{margin:0;height:100vh;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,#FDE2E4,#CDE7F0);font-family:'Patrick Hand',cursive;overflow:hidden;position:relative;}
+  /* doodle border */
+  .paper{position:absolute;inset:20px;border-radius:20px;background:
+    radial-gradient(circle at 10% 10%, rgba(255,255,255,0.6), transparent 20%),
+    linear-gradient(180deg, rgba(255,255,255,0.6), transparent 40%),
+    repeating-linear-gradient(45deg, rgba(0,0,0,0.02) 0 1px, transparent 1px 20px),
+    #fff0;box-shadow: 0 10px 30px rgba(0,0,0,0.05);pointer-events:none;}
+  .aj{position:absolute;top:-50px;font-size:1.5rem;font-weight:bold;color:hsl(var(--hue),80%,55%);animation:fall linear forwards;}
+  @keyframes fall{to{transform:translateY(110vh);opacity:0.3;}}
+  #start-screen{position:relative;z-index:10;text-align:center;}
+  #start-btn{font-size:2rem;padding:1rem 2rem;border:none;border-radius:20px;background:#fff;box-shadow:0 6px 15px rgba(0,0,0,0.1);
+    cursor:pointer;font-family:'Patrick Hand',cursive;color:var(--accent);transition:transform .2s;}
+  #start-btn:hover{transform:scale(1.05);background:#FDE2E4;}
+  .countdown{font-size:5rem;color:var(--accent);animation:pop 1s infinite alternate;}
+  @keyframes pop{from{transform:scale(1);}to{transform:scale(1.1);}}
+  .hidden{display:none;}
+  .loading{font-size:2rem;color:#444;text-align:center;animation:blink 1.2s infinite;}
+  @keyframes blink{50%{opacity:0.5;}}
+  .wait-msg{font-size:1.3rem;color:var(--accent);margin-top:1rem;text-align:center;}
+  .after{position:relative;z-index:10;text-align:center;}
+  .title{font-size:3rem;color:var(--accent);text-align:center;animation:fadeIn 1.2s ease forwards;}
+  @keyframes fadeIn{from{opacity:0;transform:scale(.95);}to{opacity:1;transform:scale(1);}}
+  .menu{margin-top:1.5rem;display:flex;flex-wrap:wrap;justify-content:center;gap:1rem;}
+  .menu a{background:#fff;padding:1rem 1.4rem;border-radius:12px;box-shadow:0 6px 15px rgba(0,0,0,0.08);
+    text-decoration:none;font-size:1.1rem;color:#444;transform:rotate(-2deg);transition:all .18s;}
+  .menu a:hover{transform:rotate(2deg) scale(1.05);background:#FDE2E4;}
+  /* small scrapbook accents */
+  .note{position:absolute;left:30px;bottom:30px;font-size:0.9rem;color:#6B5B95;opacity:0.9;}
+</style>
+</head>
+<body>
+  <div class="paper" aria-hidden="true"></div>
+  <audio id="bg-music" loop>
+    <source src="assets/happy-birthday.mp3" type="audio/mpeg">
+  </audio>
+
+  <div id="start-screen"><button id="start-btn">CLICK</button></div>
+  <div id="countdown" class="countdown hidden">10</div>
+  <div id="loading-screen" class="hidden">
+    <div class="loading">Loading… 🎁</div>
+    <div class="wait-msg">aajao ya 12 saal wait krwaoge 😏</div>
+  </div>
+
+  <div id="after" class="after hidden">
+    <h1 class="title">Happy Birthday Atishay 🎂</h1>
+    <div class="menu">
+      <a href="journey.html">📖 Our Journey</a>
+      <a href="message.html">💌 My Message</a>
+      <a href="surprise.html">🎁 Surprise</a>
+      <a href="games.html">🎮 Game Zone</a>
+    </div>
+  </div>
+
+  <div class="note">Made with ❤️ — VA</div>
+
+<script>
+  const startBtn=document.getElementById('start-btn');
+  const startScreen=document.getElementById('start-screen');
+  const countdownEl=document.getElementById('countdown');
+  const loadingEl=document.getElementById('loading-screen');
+  const afterEl=document.getElementById('after');
+  const audio=document.getElementById('bg-music');
+
+  function showAfter(){
+    startScreen.classList.add('hidden');
+    countdownEl.classList.add('hidden');
+    loadingEl.classList.add('hidden');
+    afterEl.classList.remove('hidden');
+  }
+
+  // If user already entered, skip countdown and show menu immediately
+  if(sessionStorage.getItem('entered')==='1'){
+    showAfter();
+  }
+
+  startBtn.addEventListener('click',()=>{
+    sessionStorage.setItem('entered','1');
+    startScreen.classList.add('hidden');
+    countdownEl.classList.remove('hidden');
+    audio.play().catch(()=>{});
+    let count=10;
+    const timer=setInterval(()=>{
+      count--;
+      countdownEl.textContent=count;
+      if(count<=0){ clearInterval(timer);
+        countdownEl.classList.add('hidden');
+        loadingEl.classList.remove('hidden');
+        setTimeout(()=>{ loadingEl.classList.add('hidden'); afterEl.classList.remove('hidden'); },3000);
+      }
+    },1000);
+  });
+
+  function createAJ(){
+    const aj=document.createElement('div');
+    aj.textContent='AJ';
+    aj.classList.add('aj');
+    aj.style.left=Math.random()*100+'vw';
+    aj.style.setProperty('--hue',Math.floor(Math.random()*360));
+    aj.style.animationDuration=3+Math.random()*3+'s';
+    document.body.appendChild(aj);
+    setTimeout(()=>{aj.remove();},6000);
+  }
+  setInterval(createAJ,200);
+</script>
+</body>
+</html>
